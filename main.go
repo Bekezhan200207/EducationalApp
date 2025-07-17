@@ -66,15 +66,23 @@ func main() {
 
 	usersRepository := repositories.NewUsersRepository(conn)
 	usersHandlers := handlers.NewUsersHandlers(usersRepository)
+	lessonsRepository := repositories.NewLessonsRepository(conn)
+	lessonsHandlers := handlers.NewLessonsHandler(lessonsRepository)
 
-	r.GET("/core/V1/user/profile/:uuid", usersHandlers.FindOne)                         //FWP
-	r.POST("/core/V1/user/profile", usersHandlers.Create)                               //FWP
-	r.GET("/core/V1/user/profile", usersHandlers.FindAll)                               //FWP
-	r.PUT("/core/V1/user/profile/:uuid", usersHandlers.Update)                          //FWP
-	r.DELETE("/core/V1/user/profile/:uuid", usersHandlers.Delete)                       //FWP
-	r.PATCH("/core/V1/user/profile/:uuid/changePassword", usersHandlers.ChangePassword) //FWP
-	r.PATCH("/core/V1/user/profile/:uuid/deactivate", usersHandlers.Deactivate)         //FWP
-	r.PATCH("/core/V1/user/profile/:uuid/activate", usersHandlers.Activate)             //FWP
+	r.GET("/core/V1/user/profile/:uuid", usersHandlers.FindOne)                         //all routes are not precise, might change in the future
+	r.POST("/core/V1/user/profile", usersHandlers.Create)                               //all routes are not precise, might change in the future
+	r.GET("/core/V1/user/profile", usersHandlers.FindAll)                               //all routes are not precise, might change in the future
+	r.PUT("/core/V1/user/profile/:uuid", usersHandlers.Update)                          //all routes are not precise, might change in the future
+	r.DELETE("/core/V1/user/profile/:uuid", usersHandlers.Delete)                       //all routes are not precise, might change in the future
+	r.PATCH("/core/V1/user/profile/:uuid/changePassword", usersHandlers.ChangePassword) //all routes are not precise, might change in the future
+	r.PATCH("/core/V1/user/profile/:uuid/deactivate", usersHandlers.Deactivate)         //all routes are not precise, might change in the future
+	r.PATCH("/core/V1/user/profile/:uuid/activate", usersHandlers.Activate)             //all routes are not precise, might change in the future
+
+	r.GET("/lessons/:id", lessonsHandlers.FindById) //all routes are not precise, might change in the future
+	r.GET("/lessons", lessonsHandlers.FindAll)      //all routes are not precise, might change in the future
+	r.POST("/lessons", lessonsHandlers.Create)      //all routes are not precise, might change in the future
+	r.PUT("lessons/:id", lessonsHandlers.Update)    //all routes are not precise, might change in the future
+	r.DELETE("lessons/:id", lessonsHandlers.Delete) //all routes are not precise, might change in the future
 
 	docs.SwaggerInfo.BasePath = "/"
 	r.GET("/swagger/*any", swagger.WrapHandler(swaggerfiles.Handler))
