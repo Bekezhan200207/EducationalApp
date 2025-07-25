@@ -3,10 +3,8 @@ package main
 import (
 	"context"
 	"go-EdTech/config"
-	"go-EdTech/docs"
 	"go-EdTech/handlers"
 	"go-EdTech/logger"
-	"go-EdTech/repositories"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -14,8 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/spf13/viper"
-	swaggerfiles "github.com/swaggo/files"
-	swagger "github.com/swaggo/gin-swagger"
+	"go.uber.org/zap"
 )
 
 // @title 			EdTech API
@@ -41,6 +38,13 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 
 	logger := logger.GetLogger()
+
+	defer func() {
+		if r := recover(); r != nil {
+			logger.Error("Application crashed!", zap.Any("error", r))
+		}
+	}()
+
 	r.Use(
 		ginzap.Ginzap(logger, time.RFC3339, true),
 		ginzap.RecoveryWithZap(logger, true),
@@ -54,60 +58,51 @@ func main() {
 
 	r.Use(cors.New(corsConfig))
 
+	logger.Info("Loading configuration...")
 	err := loadConfig()
 	if err != nil {
-		panic(err)
+		logger.Fatal("Failed to load config", zap.Error(err))
 	}
 
+	logger.Info("Connecting to database...")
 	conn, err := connectToDb()
 	if err != nil {
-		panic("Could not connect to db")
+		logger.Fatal("Database connection failed", zap.Error(err))
 	}
 
-	usersRepository := repositories.NewUsersRepository(conn)
-	usersHandlers := handlers.NewUsersHandlers(usersRepository)
-	lessonsRepository := repositories.NewLessonsRepository(conn)
-	lessonsHandlers := handlers.NewLessonsHandler(lessonsRepository)
+	r.Use(func(c *gin.Context) {
+		c.Set("db", conn)
+		c.Next()
+	})
 
-	r.GET("/core/V1/user/profile/:uuid", usersHandlers.FindOne)                         //all routes are not precise, might change in the future
-	r.POST("/core/V1/user/profile", usersHandlers.Create)                               //all routes are not precise, might change in the future
-	r.GET("/core/V1/user/profile", usersHandlers.FindAll)                               //all routes are not precise, might change in the future
-	r.PUT("/core/V1/user/profile/:uuid", usersHandlers.Update)                          //all routes are not precise, might change in the future
-	r.DELETE("/core/V1/user/profile/:uuid", usersHandlers.Delete)                       //all routes are not precise, might change in the future
-	r.PATCH("/core/V1/user/profile/:uuid/changePassword", usersHandlers.ChangePassword) //all routes are not precise, might change in the future
-	r.PATCH("/core/V1/user/profile/:uuid/deactivate", usersHandlers.Deactivate)         //all routes are not precise, might change in the future
-	r.PATCH("/core/V1/user/profile/:uuid/activate", usersHandlers.Activate)             //all routes are not precise, might change in the future
+	handlers.SetupRoutes(r, conn)
 
-	r.GET("/lessons/:id", lessonsHandlers.FindById) //all routes are not precise, might change in the future
-	r.GET("/lessons", lessonsHandlers.FindAll)      //all routes are not precise, might change in the future
-	r.POST("/lessons", lessonsHandlers.Create)      //all routes are not precise, might change in the future
-	r.PUT("lessons/:id", lessonsHandlers.Update)    //all routes are not precise, might change in the future
-	r.DELETE("lessons/:id", lessonsHandlers.Delete) //all routes are not precise, might change in the future
-
-	docs.SwaggerInfo.BasePath = "/"
-	r.GET("/swagger/*any", swagger.WrapHandler(swaggerfiles.Handler))
-
-	logger.Info("Application starting")
-
-	r.Run(config.Config.AppHost)
+	logger.Info("Application starting...", zap.String("host", config.Config.AppHost))
+	if err := r.Run(config.Config.AppHost); err != nil {
+		logger.Fatal("Server failed to start", zap.Error(err))
+	}
 }
 
 func loadConfig() error {
+	// Указываем путь к .env файлу
 	viper.SetConfigFile(".env")
 
-	err := viper.ReadInConfig()
-	if err != nil {
-		return err
-	}
+	// Загружаем переменные из .env, если он есть (необязательно)
+	_ = viper.ReadInConfig() // не падаем, если файла нет
 
+	// Читаем переменные окружения (например, из Railway)
+	viper.AutomaticEnv()
+
+	// Мапим переменные в структуру
 	var mapConfig config.MapConfig
-	err = viper.Unmarshal(&mapConfig)
+	err := viper.Unmarshal(&mapConfig)
 	if err != nil {
 		return err
 	}
 
 	config.Config = &mapConfig
 	return nil
+
 }
 
 func connectToDb() (*pgxpool.Pool, error) {
@@ -120,6 +115,5 @@ func connectToDb() (*pgxpool.Pool, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return conn, nil
 }

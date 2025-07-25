@@ -24,7 +24,588 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/core/V1/user/profile": {
+        "/lessons": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "lessons"
+                ],
+                "summary": "Find all lessons",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Lesson"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Payload",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "lessons"
+                ],
+                "summary": "Create Lesson",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Lesson_title",
+                        "name": "title",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Lesson_description",
+                        "name": "description",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Lesson_subject_id",
+                        "name": "subject_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Topic_order",
+                        "name": "order",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Lessons_level",
+                        "name": "level",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Lessons_interest",
+                        "name": "interest",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "minimum age for viewing lesson",
+                        "name": "target_age_min",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "maximum age for viewing lesson",
+                        "name": "target_age_max",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Lessons_video",
+                        "name": "video_data",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Lessons_video_filename",
+                        "name": "video_filename",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Lessons_video_MIME-type",
+                        "name": "video_mime_type",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Lessons_video_duration_seconds",
+                        "name": "duration_sec",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "lessons_video_is_published",
+                        "name": "is_published",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Payload",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    }
+                }
+            }
+        },
+        "/lessons/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "lessons"
+                ],
+                "summary": "find lesson by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Lesson_id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Lesson"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Payload",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "lessons"
+                ],
+                "summary": "Update Lesson",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Lesson_id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Lesson_title",
+                        "name": "title",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Lesson_description",
+                        "name": "description",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Lesson_subject_id",
+                        "name": "subject_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Topic_order",
+                        "name": "order",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Lessons_level",
+                        "name": "level",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Lessons_interest",
+                        "name": "interest",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "minimum age for viewing lesson",
+                        "name": "target_age_min",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "maximum age for viewing lesson",
+                        "name": "target_age_max",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Lessons_video",
+                        "name": "video_data",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Lessons_video_filename",
+                        "name": "video_filename",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Lessons_video_MIME-type",
+                        "name": "video_mime_type",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Lessons_video_duration_seconds",
+                        "name": "duration_sec",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "lessons_video_is_published",
+                        "name": "is_published",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Payload",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "lessons"
+                ],
+                "summary": "delete lesson by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Lesson_id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Invalid Payload",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    }
+                }
+            }
+        },
+        "/subjects": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subjects"
+                ],
+                "summary": "find all subjects",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Subject"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    }
+                }
+            }
+        },
+        "/subjects/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subjects"
+                ],
+                "summary": "find subject by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Subject_id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.Subject"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Payload",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subjects"
+                ],
+                "summary": "update subject",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Subject_title",
+                        "name": "title",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Invalid Payload",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subjects"
+                ],
+                "summary": "create subject",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Subject_title",
+                        "name": "title",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "integer"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid Payload",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "subjects"
+                ],
+                "summary": "delete subject by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Subject_id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Invalid Payload",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    }
+                }
+            }
+        },
+        "/users": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -129,7 +710,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/core/V1/user/profile/{uuid}": {
+        "/users/{uuid}": {
             "get": {
                 "security": [
                     {
@@ -146,6 +727,15 @@ const docTemplate = `{
                     "users"
                 ],
                 "summary": "Find By Id",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -179,6 +769,13 @@ const docTemplate = `{
                 ],
                 "summary": "Update User",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "User Name",
@@ -230,6 +827,15 @@ const docTemplate = `{
                     "users"
                 ],
                 "summary": "Delete User",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -249,7 +855,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/core/V1/user/profile/{uuid}/activate": {
+        "/users/{uuid}/activate": {
             "patch": {
                 "consumes": [
                     "application/json"
@@ -261,6 +867,15 @@ const docTemplate = `{
                     "users"
                 ],
                 "summary": "set user status to active",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -280,7 +895,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/core/V1/user/profile/{uuid}/changePassword": {
+        "/users/{uuid}/changePassword": {
             "patch": {
                 "consumes": [
                     "application/json"
@@ -293,6 +908,13 @@ const docTemplate = `{
                 ],
                 "summary": "ChangePassword User",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Password",
@@ -320,7 +942,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/core/V1/user/profile/{uuid}/deactivate": {
+        "/users/{uuid}/deactivate": {
             "patch": {
                 "consumes": [
                     "application/json"
@@ -332,6 +954,15 @@ const docTemplate = `{
                     "users"
                 ],
                 "summary": "set user status to inactive",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User UUID",
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK"
@@ -377,6 +1008,74 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Lesson": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "duration_sec": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "interest": {
+                    "type": "string"
+                },
+                "is_published": {
+                    "type": "boolean"
+                },
+                "level": {
+                    "type": "string"
+                },
+                "order": {
+                    "type": "integer"
+                },
+                "subject_id": {
+                    "description": "under question",
+                    "type": "integer"
+                },
+                "target_age_max": {
+                    "type": "integer"
+                },
+                "target_age_min": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "video_data": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "video_filename": {
+                    "type": "string"
+                },
+                "video_mime_type": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Subject": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
                     "type": "string"
                 }
             }
