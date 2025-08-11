@@ -21,11 +21,11 @@ func NewUsersHandlers(repo *repositories.UsersRepository) *UsersHandlers {
 }
 
 type createUserRequest struct {
-	User_Name    string
-	User_Surname string
-	Email        string
-	Password     string
-	User_Type    string
+	User_Name    string `json:"name"`
+	User_Surname string `json:"surname"`
+	Email        string `json:"email"`
+	Password     string `json:"password"`
+	User_Type    string `json:"user_type"`
 }
 
 type userResponse struct {
@@ -37,12 +37,12 @@ type userResponse struct {
 }
 
 // FindAll godoc
-// @Summary Get All Users
-// @Tags users
-// @Accept json
-// @Produce json
-// @Success 		200 {object} []userResponse "OK"
-// @Failure 		500 {object} models.ApiError
+// @Summary 	Get All Users
+// @Tags 		users
+// @Accept	 	json
+// @Produce 	json
+// @Success 	200 	{object} []userResponse "OK"
+// @Failure 	500 	{object} models.ApiError
 // @Router 		/users [get]
 func (h *UsersHandlers) FindAll(c *gin.Context) {
 	logger := logger.GetLogger()
@@ -70,14 +70,14 @@ func (h *UsersHandlers) FindAll(c *gin.Context) {
 }
 
 // FindOne godoc
-// @Summary Find By Id
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param uuid path string true "User UUID"
-// @Success 		200 {object} userResponse "OK"
-// @Failure 		400 {object} models.ApiError "Invalid user uuid"
-// @Failure 		500 {object} models.ApiError
+// @Summary 	Find By Id
+// @Tags		users
+// @Accept 		json
+// @Produce 	json
+// @Param 		uuid 	path 		string 	true 	"User UUID"
+// @Success 	200 	{object} 	userResponse 	"OK"
+// @Failure 	400 	{object} 	models.ApiError "Invalid user uuid"
+// @Failure 	500 	{object} 	models.ApiError
 // @Router 		/users/{uuid} [get]
 // @Security Bearer
 func (h *UsersHandlers) FindOne(c *gin.Context) {
@@ -102,18 +102,18 @@ func (h *UsersHandlers) FindOne(c *gin.Context) {
 }
 
 // Create godoc
-// @Summary Create User
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param name query string true "User_Name"
-// @Param surname query string true "User_Surname"
-// @Param email query string true "Email"
-// @Param type query string true "User_Type" Enum('Child', 'Parent', 'Content_manager', 'Administrator')
-// @Param password query string true "Password"
-// @Success 		200 {object} object{uuid=string} "OK"
-// @Failure 		400 {object} models.ApiError "Invalid Payload"
-// @Failure 		500 {object} models.ApiError
+// @Summary 	Create User
+// @Tags 		users
+// @Accept 		json
+// @Produce 	json
+// @Param		name 		query 		string 		true 		"User_Name"
+// @Param		surname 	query 		string 		true 		"User_Surname"
+// @Param		email 		query 		string 		true 		"Email"
+// @Param		type 		query 		string 		true 		"User_Type" Enum('Child', 'Parent', 'Content_manager', 'Administrator')
+// @Param		password 	query 		string 		true 		"Password"
+// @Success 	200 		{object} 	object{uuid=string}		"OK"
+// @Failure 	400 		{object} 	models.ApiError 		"Invalid Payload"
+// @Failure 	500 		{object} 	models.ApiError
 // @Router 		/users [post]
 func (h *UsersHandlers) Create(c *gin.Context) {
 	logger := logger.GetLogger()
@@ -151,17 +151,17 @@ func (h *UsersHandlers) Create(c *gin.Context) {
 }
 
 // Update godoc
-// @Summary Update User
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param uuid path string true "User UUID"
-// @Param name query string true "User Name"
-// @Param surname query string true "User Surname"
-// @Param email query string true "Email"
-// @Success 		200 "OK"
-// @Failure 		400 {object} models.ApiError "Invalid user uuid"
-// @Failure 		500 {object} models.ApiError
+// @Summary 	Update User
+// @Tags 		users
+// @Accept 		json
+// @Produce 	json
+// @Param 		uuid 		path 		string 		true 	"User UUID"
+// @Param 		name 		query		string 		true 	"User Name"
+// @Param 		surname 	query		string 		true 	"User Surname"
+// @Param 		email 		query		string 		true 	"Email"
+// @Success 	200 		"OK"
+// @Failure 	400 		{object}	models.ApiError 	"Invalid user uuid"
+// @Failure 	500 		{object}	models.ApiError
 // @Router 		/users/{uuid} [put]
 func (h *UsersHandlers) Update(c *gin.Context) {
 	logger := logger.GetLogger()
@@ -193,15 +193,15 @@ func (h *UsersHandlers) Update(c *gin.Context) {
 }
 
 // ChangePassword godoc
-// @Summary ChangePassword User
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param uuid path string true "User UUID"
-// @Param password query string true "Password"
-// @Success 		200 "OK"
-// @Failure 		400 {object} models.ApiError "Invalid user uuid"
-// @Failure 		500 {object} models.ApiError
+// @Summary 	ChangePassword User
+// @Tags 		users
+// @Accept 		json
+// @Produce 	json
+// @Param 		uuid 		path 		string 		true 	"User UUID"
+// @Param 		password 	query 		string	 	true 	"Password"
+// @Success 	200 		"OK"
+// @Failure 	400 		{object} 	models.ApiError	 	"Invalid user uuid"
+// @Failure 	500 		{object} 	models.ApiError
 // @Router 		/users/{uuid}/changePassword [patch]
 func (h *UsersHandlers) ChangePassword(c *gin.Context) {
 	logger := logger.GetLogger()
@@ -240,14 +240,14 @@ func (h *UsersHandlers) ChangePassword(c *gin.Context) {
 }
 
 // Delete godoc
-// @Summary Delete User
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param uuid path string true "User UUID"
-// @Success 		200 "OK"
-// @Failure 		400 {object} models.ApiError "Invalid user uuid"
-// @Failure 		500 {object} models.ApiError
+// @Summary 	Delete User
+// @Tags 		users
+// @Accept		json
+// @Produce 	json
+// @Param 		uuid 	path 		string 		true 	"User UUID"
+// @Success 	200 	"OK"
+// @Failure 	400 	{object} 	models.ApiError 	"Invalid user uuid"
+// @Failure 	500 	{object} 	models.ApiError
 // @Router 		/users/{uuid} [delete]
 func (h *UsersHandlers) Delete(c *gin.Context) {
 	logger := logger.GetLogger()
@@ -271,14 +271,14 @@ func (h *UsersHandlers) Delete(c *gin.Context) {
 }
 
 // Deactivate godoc
-// @Summary set user status to inactive
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param uuid path string true "User UUID"
-// @Success 		200 "OK"
-// @Failure 		400 {object} models.ApiError "Invalid user uuid"
-// @Failure 		500 {object} models.ApiError
+// @Summary 	set user status to inactive
+// @Tags 		users
+// @Accept 		json
+// @Produce		json
+// @Param 		uuid 		path 		string 		true 	"User UUID"
+// @Success 	200 		"OK"
+// @Failure 	400 		{object} 	models.ApiError 	"Invalid user uuid"
+// @Failure 	500 		{object} 	models.ApiError
 // @Router 		/users/{uuid}/deactivate [patch]
 func (h *UsersHandlers) Deactivate(c *gin.Context) {
 	logger := logger.GetLogger()
@@ -302,14 +302,14 @@ func (h *UsersHandlers) Deactivate(c *gin.Context) {
 }
 
 // Activate godoc
-// @Summary set user status to active
-// @Tags users
-// @Accept json
-// @Produce json
-// @Param uuid path string true "User UUID"
-// @Success 		200 "OK"
-// @Failure 		400 {object} models.ApiError "Invalid user uuid"
-// @Failure 		500 {object} models.ApiError
+// @Summary 	set user status to active
+// @Tags 		users
+// @Accept 		json
+// @Produce 	json
+// @Param 		uuid 	path 		string 		true 	"User UUID"
+// @Success 	200 	"OK"
+// @Failure 	400 	{object} 	models.ApiError 	"Invalid user uuid"
+// @Failure 	500 	{object} 	models.ApiError
 // @Router 		/users/{uuid}/activate [patch]
 func (h *UsersHandlers) Activate(c *gin.Context) {
 	logger := logger.GetLogger()

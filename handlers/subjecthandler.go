@@ -20,14 +20,14 @@ func NewSubjectsHandlers(repo *repositories.SubjectsRepository) *SubjectsHandler
 }
 
 // FindById godoc
-// @Summary find subject by id
-// @Tags subjects
-// @Accept json
-// @Produce json
-// @Param id path int true "Subject_id"
-// @Success 		200 {object} models.Subject "OK"
-// @Failure 		400 {object} models.ApiError "Invalid Payload"
-// @Failure 		500 {object} models.ApiError
+// @Summary 	find subject by id
+// @Tags 		subjects
+// @Accept		json
+// @Produce 	json
+// @Param 		id 		path 		int 	true 	"Subject_id"
+// @Success 	200 	{object} 	models.Subject 	"OK"
+// @Failure 	400 	{object} 	models.ApiError "Invalid Payload"
+// @Failure 	500 	{object} 	models.ApiError
 // @Router 		/subjects/{id} [get]
 func (g *SubjectsHandlers) FindById(c *gin.Context) {
 	logger := logger.GetLogger()
@@ -51,12 +51,12 @@ func (g *SubjectsHandlers) FindById(c *gin.Context) {
 }
 
 // FindAll godoc
-// @Summary find all subjects
-// @Tags subjects
-// @Accept json
-// @Produce json
-// @Success 		200 {object} []models.Subject "OK"
-// @Failure 		500 {object} models.ApiError
+// @Summary 	find all subjects
+// @Tags 		subjects
+// @Accept 		json
+// @Produce 	json
+// @Success 	200 {object} []models.Subject "OK"
+// @Failure 	500 {object} models.ApiError
 // @Router 		/subjects [get]
 func (g *SubjectsHandlers) FindAll(c *gin.Context) {
 	logger := logger.GetLogger()
@@ -72,14 +72,14 @@ func (g *SubjectsHandlers) FindAll(c *gin.Context) {
 }
 
 // Create godoc
-// @Summary create subject
-// @Tags subjects
-// @Accept json
-// @Produce json
-// @Param title query string true "Subject_title"
-// @Success 		200 {object} object{id=int} "OK"
-// @Failure 		400 {object} models.ApiError "Invalid Payload"
-// @Failure 		500 {object} models.ApiError
+// @Summary 	create subject
+// @Tags 		subjects
+// @Accept 		json
+// @Produce 	json
+// @Param		title 	query 		string 		true 	"Subject_title"
+// @Success 	200 	{object} 	object{id=int} 		"OK"
+// @Failure 	400 	{object}	models.ApiError 	"Invalid Payload"
+// @Failure 	500 	{object} 	models.ApiError
 // @Router 		/subjects/{id} [post]
 func (g *SubjectsHandlers) Create(c *gin.Context) {
 	logger := logger.GetLogger()
@@ -110,14 +110,14 @@ func (g *SubjectsHandlers) Create(c *gin.Context) {
 }
 
 // Update godoc
-// @Summary update subject
-// @Tags subjects
-// @Accept json
-// @Produce json
-// @Param title query string true "Subject_title"
-// @Success 		200 "OK"
-// @Failure 		400 {object} models.ApiError "Invalid Payload"
-// @Failure 		500 {object} models.ApiError
+// @Summary 	update subject
+// @Tags 		subjects
+// @Accept		json
+// @Produce 	json
+// @Param 		title 	query 		string 		true 	"Subject_title"
+// @Success 	200 	"OK"
+// @Failure 	400 	{object} 	models.ApiError 	"Invalid Payload"
+// @Failure 	500 	{object} 	models.ApiError
 // @Router 		/subjects/{id} [put]
 func (g *SubjectsHandlers) Update(c *gin.Context) {
 	logger := logger.GetLogger()
@@ -162,14 +162,14 @@ func (g *SubjectsHandlers) Update(c *gin.Context) {
 }
 
 // Delete godoc
-// @Summary delete subject by id
-// @Tags subjects
-// @Accept json
-// @Produce json
-// @Param id path int true "Subject_id"
-// @Success 		200 "OK"
-// @Failure 		400 {object} models.ApiError "Invalid Payload"
-// @Failure 		500 {object} models.ApiError
+// @Summary 	delete subject by id
+// @Tags 		subjects
+// @Accept 		json
+// @Produce 	json
+// @Param 		id 		path 		int 	true 	"Subject_id"
+// @Success 	200 	"OK"
+// @Failure 	400 	{object} 	models.ApiError "Invalid Payload"
+// @Failure 	500 	{object} 	models.ApiError
 // @Router 		/subjects/{id} [delete]
 func (g *SubjectsHandlers) Delete(c *gin.Context) {
 	logger := logger.GetLogger()
