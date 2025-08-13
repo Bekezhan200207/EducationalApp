@@ -40,6 +40,7 @@ type courseRequest struct {
 // @Failure 	400 			{object} 	models.ApiError
 // @Failure 	500 			{object} 	models.ApiError
 // @Router 		/courses [post]
+// @Security 	Bearer
 func (h *CoursesHandlers) Create(c *gin.Context) {
 	logger := logger.GetLogger()
 	var request courseRequest
@@ -77,6 +78,7 @@ func (h *CoursesHandlers) Create(c *gin.Context) {
 // @Success 	200 	{object} 	models.Course "OK"
 // @Failure 	400 	{object} 	models.ApiError
 // @Router 		/courses/{id} [get]
+// @Security 	Bearer
 func (h *CoursesHandlers) FindById(c *gin.Context) {
 	logger := logger.GetLogger()
 	idStr := c.Param("id")
@@ -104,6 +106,7 @@ func (h *CoursesHandlers) FindById(c *gin.Context) {
 // @Success 	200 	{object} []models.Course "OK"
 // @Failure 	500 	{object} models.ApiError
 // @Router 		/courses [get]
+// @Security 	Bearer
 func (g *CoursesHandlers) FindAll(c *gin.Context) {
 	logger := logger.GetLogger()
 
@@ -129,6 +132,7 @@ func (g *CoursesHandlers) FindAll(c *gin.Context) {
 // @Failure 	400 			{object} 	models.ApiError
 // @Failure 	500 			{object} 	models.ApiError
 // @Router 		/courses/{id} [put]
+// @Security 	Bearer
 func (g *CoursesHandlers) Update(c *gin.Context) {
 	logger := logger.GetLogger()
 
@@ -183,6 +187,7 @@ func (g *CoursesHandlers) Update(c *gin.Context) {
 // @Failure 	400 	{object} 	models.ApiError
 // @Failure 	500 	{object} 	models.ApiError
 // @Router 		/courses/{id} [delete]
+// @Security 	Bearer
 func (g *CoursesHandlers) Delete(c *gin.Context) {
 	logger := logger.GetLogger()
 

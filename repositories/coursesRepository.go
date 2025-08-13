@@ -45,11 +45,11 @@ func (r *Coursesrepository) FindAll(c context.Context) ([]models.Course, error) 
 	logger := logger.GetLogger()
 
 	rows, err := r.db.Query(c, `select course_id, course_title, description, is_published, created_at, updated_at from courses`)
-	defer rows.Close()
 	if err != nil {
 		logger.Error("could not query database", zap.String("db_msg", err.Error()))
 		return []models.Course{}, err
 	}
+	defer rows.Close()
 
 	courses := make([]models.Course, 0)
 

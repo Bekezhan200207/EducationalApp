@@ -50,11 +50,11 @@ func (r *Lessonsrepository) FindById(c context.Context, id int) (models.Lesson, 
 	logger := logger.GetLogger()
 
 	rows, err := r.db.Query(c, sql, id)
-	defer rows.Close()
 	if err != nil {
 		logger.Error("could not query database", zap.String("db_msg", err.Error()))
 		return models.Lesson{}, err
 	}
+	defer rows.Close()
 
 	var lesson *models.Lesson
 

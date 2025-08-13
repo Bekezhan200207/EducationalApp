@@ -35,11 +35,11 @@ func (r *SubjectsRepository) FindAll(c context.Context) ([]models.Subject, error
 	logger := logger.GetLogger()
 
 	rows, err := r.db.Query(c, "select subject_id, subject_name from subjects")
-	defer rows.Close()
 	if err != nil {
 		logger.Error("could not query database", zap.String("db_msg", err.Error()))
 		return []models.Subject{}, err
 	}
+	defer rows.Close()
 
 	subjects := make([]models.Subject, 0)
 

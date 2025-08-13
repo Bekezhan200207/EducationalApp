@@ -48,6 +48,7 @@ func NewLessonsHandler(
 // @Failure 	400 	{object}	models.ApiError
 // @Failure 	500 	{object}	models.ApiError
 // @Router 		/lessons/{id} [get]
+// @Security 	Bearer
 func (h *LessonsHandler) FindById(c *gin.Context) {
 	logger := logger.GetLogger()
 
@@ -80,6 +81,7 @@ func (h *LessonsHandler) FindById(c *gin.Context) {
 // @Failure 	400 {object} models.ApiError
 // @Failure 	500 {object} models.ApiError
 // @Router 		/lessons [get]
+// @Security 	Bearer
 func (h *LessonsHandler) FindAll(c *gin.Context) {
 	logger := logger.GetLogger()
 
@@ -115,6 +117,7 @@ func (h *LessonsHandler) FindAll(c *gin.Context) {
 // @Failure 	400 				{object}	models.ApiError "Invalid Payload"
 // @Failure 	500 				{object} 	models.ApiError
 // @Router 		/lessons [post]
+// @Security 	Bearer
 func (h *LessonsHandler) Create(c *gin.Context) {
 	logger := logger.GetLogger()
 
@@ -180,6 +183,7 @@ func (h *LessonsHandler) Create(c *gin.Context) {
 // @Failure 	400 				{object} 	models.ApiError "Invalid Payload"
 // @Failure 	500					{object} 	models.ApiError
 // @Router 		/lessons/{id} [put]
+// @Security 	Bearer
 func (g *LessonsHandler) Update(c *gin.Context) {
 	logger := logger.GetLogger()
 
@@ -246,6 +250,7 @@ func (g *LessonsHandler) Update(c *gin.Context) {
 // @Failure 	400 	{object} 	models.ApiError "Invalid Payload"
 // @Failure 	500 	{object} 	models.ApiError
 // @Router 		/lessons/{id} [delete]
+// @Security 	Bearer
 func (g *LessonsHandler) Delete(c *gin.Context) {
 	logger := logger.GetLogger()
 

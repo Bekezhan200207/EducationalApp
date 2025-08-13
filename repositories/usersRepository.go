@@ -23,7 +23,7 @@ func (r *UsersRepository) Create(c context.Context, user models.User) (uuid.UUID
 	logger := logger.GetLogger()
 
 	var id uuid.UUID
-	err := r.db.QueryRow(c, "insert into Users(user_name, user_surname, user_type, status, email, password_hash) values($1, $2, $3, $4, $5, $6) returning uuid", user.User_Name, user.User_Surname, user.User_Type, "active", user.Email, user.PasswordHash).Scan(&id)
+	err := r.db.QueryRow(c, "insert into Users(user_name, user_surname, user_type, status, email, password_hash) values($1, $2, $3, $4, $5, $6) returning uuid", user.Name, user.Surname, user.User_Type, "active", user.Email, user.PasswordHash).Scan(&id)
 	if err != nil {
 		logger.Error("could not query database", zap.String("db_msg", err.Error()))
 		return uuid.Nil, err
@@ -32,7 +32,7 @@ func (r *UsersRepository) Create(c context.Context, user models.User) (uuid.UUID
 }
 
 // FWP
-func (r *UsersRepository) FindOne(c context.Context, strUUID string) (models.User, error) {
+func (r *UsersRepository) FindById(c context.Context, strUUID string) (models.User, error) {
 	logger := logger.GetLogger()
 	parsed_UUID, err := uuid.Parse(strUUID)
 	if err != nil {
@@ -42,7 +42,7 @@ func (r *UsersRepository) FindOne(c context.Context, strUUID string) (models.Use
 
 	var user models.User
 	row := r.db.QueryRow(c, "select uuid, user_name, user_surname, user_type, email, password_hash from Users where uuid = $1", parsed_UUID)
-	err = row.Scan(&user.Id, &user.User_Name, &user.User_Surname, &user.User_Type, &user.Email, &user.PasswordHash)
+	err = row.Scan(&user.UUID, &user.Name, &user.Surname, &user.User_Type, &user.Email, &user.PasswordHash)
 
 	if err != nil {
 		logger.Error("could not scan query row", zap.String("db_msg", err.Error()))
@@ -64,7 +64,7 @@ func (r *UsersRepository) FindAll(c context.Context) ([]models.User, error) {
 	users := make([]models.User, 0)
 	for rows.Next() {
 		var user models.User
-		err := rows.Scan(&user.Id, &user.User_Name, &user.User_Surname, &user.User_Type, &user.Email, &user.PasswordHash)
+		err := rows.Scan(&user.UUID, &user.Name, &user.Surname, &user.User_Type, &user.Email, &user.PasswordHash)
 		if err != nil {
 			logger.Error("could not scan query row", zap.String("db_msg", err.Error()))
 			return nil, err
@@ -87,7 +87,7 @@ func (r *UsersRepository) Update(c context.Context, user models.User, strUUID st
 		return err
 	}
 
-	_, err = r.db.Exec(c, "update users set user_name = $1, user_surname =$2, email = $3 where uuid = $4", user.User_Name, user.User_Surname, user.Email, parsed_UUID)
+	_, err = r.db.Exec(c, "update users set user_name = $1, user_surname =$2, email = $3 where uuid = $4", user.Name, user.Surname, user.Email, parsed_UUID)
 	if err != nil {
 		logger.Error("could not execute in database", zap.String("db_msg", err.Error()))
 		return err
@@ -133,7 +133,7 @@ func (u *UsersRepository) FindByEmail(c context.Context, email string) (models.U
 
 	var user models.User
 	row := u.db.QueryRow(c, "select uuid, user_name, user_surname, user_type, email, password_hash from users where email = $1", email)
-	err := row.Scan(&user.Id, &user.User_Name, &user.User_Surname, &user.User_Type, &user.Email, &user.PasswordHash)
+	err := row.Scan(&user.UUID, &user.Name, &user.Surname, &user.User_Type, &user.Email, &user.PasswordHash)
 
 	if err != nil {
 		logger.Error("could not scan query row", zap.String("db_msg", err.Error()))

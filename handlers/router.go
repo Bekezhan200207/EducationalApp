@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"go-EdTech/docs"
+	"go-EdTech/middlewares"
 	"go-EdTech/repositories"
 
 	"github.com/gin-gonic/gin"
@@ -21,33 +22,42 @@ func SetupRoutes(r *gin.Engine, conn *pgxpool.Pool) {
 	lessonsHandlers := NewLessonsHandler(lessonsRepository)
 	subjectsHandlers := NewSubjectsHandlers(subjectsRepository)
 	CoursesHandlers := NewCoursesHandler(coursesRepository)
+	authHandlers := NewAuthHandlers(usersRepository)
 
-	r.GET("/users/:uuid", usersHandlers.FindOne)
-	r.POST("/users", usersHandlers.Create)
-	r.GET("/users", usersHandlers.FindAll)
-	r.PUT("/users/:uuid/:uuid", usersHandlers.Update)
-	r.DELETE("/users/:uuid", usersHandlers.Delete)
-	r.PATCH("/users/:uuid/:uuid/changePassword", usersHandlers.ChangePassword)
-	r.PATCH("/users/:uuid/deactivate", usersHandlers.Deactivate)
-	r.PATCH("/users/:uuid/activate", usersHandlers.Activate)
+	authorized := r.Group("")
+	authorized.Use(middlewares.AuthMiddleware)
 
-	r.GET("/lessons/:id", lessonsHandlers.FindById)
-	r.GET("/lessons", lessonsHandlers.FindAll)
-	r.POST("/lessons", lessonsHandlers.Create)
-	r.PUT("lessons/:id", lessonsHandlers.Update)
-	r.DELETE("lessons/:id", lessonsHandlers.Delete)
+	authorized.GET("/users/:uuid", usersHandlers.FindById)
+	authorized.GET("/users", usersHandlers.FindAll)
+	authorized.PUT("/users/:uuid/:uuid", usersHandlers.Update)
+	authorized.DELETE("/users/:uuid", usersHandlers.Delete)
+	authorized.PATCH("/users/:uuid/:uuid/changePassword", usersHandlers.ChangePassword)
+	authorized.PATCH("/users/:uuid/deactivate", usersHandlers.Deactivate)
+	authorized.PATCH("/users/:uuid/activate", usersHandlers.Activate)
+	authorized.POST("/auth/signOut", authHandlers.SignOut)
+	authorized.GET("/auth/userInfo", authHandlers.GetUserInfo)
 
-	r.GET("/subjects/:id", subjectsHandlers.FindById)
-	r.GET("/subjects", subjectsHandlers.FindAll)
-	r.POST("/subjects", subjectsHandlers.Create)
-	r.PUT("/subjects/:id", subjectsHandlers.Update)
-	r.DELETE("/subjects/:id", subjectsHandlers.Delete)
+	authorized.GET("/lessons/:id", lessonsHandlers.FindById)
+	authorized.GET("/lessons", lessonsHandlers.FindAll)
+	authorized.POST("/lessons", lessonsHandlers.Create)
+	authorized.PUT("lessons/:id", lessonsHandlers.Update)
+	authorized.DELETE("lessons/:id", lessonsHandlers.Delete)
 
-	r.GET("/courses/:id", CoursesHandlers.FindById)
-	r.GET("/courses", CoursesHandlers.FindAll)
-	r.POST("/courses", CoursesHandlers.Create)
-	r.PUT("courses/:id", CoursesHandlers.Update)
-	r.DELETE("courses/:id", CoursesHandlers.Delete)
+	authorized.GET("/subjects/:id", subjectsHandlers.FindById)
+	authorized.GET("/subjects", subjectsHandlers.FindAll)
+	authorized.POST("/subjects", subjectsHandlers.Create)
+	authorized.PUT("/subjects/:id", subjectsHandlers.Update)
+	authorized.DELETE("/subjects/:id", subjectsHandlers.Delete)
+
+	authorized.GET("/courses/:id", CoursesHandlers.FindById)
+	authorized.GET("/courses", CoursesHandlers.FindAll)
+	authorized.POST("/courses", CoursesHandlers.Create)
+	authorized.PUT("courses/:id", CoursesHandlers.Update)
+	authorized.DELETE("courses/:id", CoursesHandlers.Delete)
+
+	unauthorized := r.Group("")
+	unauthorized.POST("/auth/signIn", authHandlers.SignIn)
+	unauthorized.POST("/users", usersHandlers.RegisterNewUser)
 
 	// Swagger
 	docs.SwaggerInfo.BasePath = "/"

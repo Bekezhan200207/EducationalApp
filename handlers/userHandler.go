@@ -20,20 +20,16 @@ func NewUsersHandlers(repo *repositories.UsersRepository) *UsersHandlers {
 	return &UsersHandlers{repo: repo}
 }
 
-type createUserRequest struct {
-	User_Name    string `json:"name"`
-	User_Surname string `json:"surname"`
-	Email        string `json:"email"`
-	Password     string `json:"password"`
-	User_Type    string `json:"user_type"`
+type userResponse struct {
+	UUID      uuid.UUID `json:"uuid"`
+	Name      string    `json:"name"`
+	Surname   string    `json:"surname"`
+	Email     string    `json:"email"`
+	User_Type string    `json:"user_type"`
 }
 
-type userResponse struct {
-	Id           uuid.UUID `json:"uuid"`
-	User_Name    string    `json:"name"`
-	User_Surname string    `json:"surname"`
-	Email        string    `json:"email"`
-	User_Type    string    `json:"user_type"`
+type changePasswordRequest struct {
+	Password string `json:"password"`
 }
 
 // FindAll godoc
@@ -44,6 +40,7 @@ type userResponse struct {
 // @Success 	200 	{object} []userResponse "OK"
 // @Failure 	500 	{object} models.ApiError
 // @Router 		/users [get]
+// @Security Bearer
 func (h *UsersHandlers) FindAll(c *gin.Context) {
 	logger := logger.GetLogger()
 
@@ -57,11 +54,11 @@ func (h *UsersHandlers) FindAll(c *gin.Context) {
 	dtos := make([]userResponse, 0, len(users))
 	for _, u := range users {
 		r := userResponse{
-			Id:           u.Id,
-			User_Name:    u.User_Name,
-			User_Surname: u.User_Surname,
-			Email:        u.Email,
-			User_Type:    u.User_Type,
+			UUID:      u.UUID,
+			Name:      u.Name,
+			Surname:   u.Surname,
+			Email:     u.Email,
+			User_Type: u.User_Type,
 		}
 		dtos = append(dtos, r)
 	}
@@ -69,21 +66,20 @@ func (h *UsersHandlers) FindAll(c *gin.Context) {
 	c.JSON(http.StatusOK, dtos)
 }
 
-// FindOne godoc
+// FindById godoc
 // @Summary 	Find By Id
 // @Tags		users
 // @Accept 		json
 // @Produce 	json
 // @Param 		uuid 	path 		string 	true 	"User UUID"
 // @Success 	200 	{object} 	userResponse 	"OK"
-// @Failure 	400 	{object} 	models.ApiError "Invalid user uuid"
-// @Failure 	500 	{object} 	models.ApiError
+// @Failure 	500 	{object} 	models.ApiError "Invalid user uuid"
 // @Router 		/users/{uuid} [get]
 // @Security Bearer
-func (h *UsersHandlers) FindOne(c *gin.Context) {
+func (h *UsersHandlers) FindById(c *gin.Context) {
 	logger := logger.GetLogger()
 	uuid := c.Param("uuid")
-	user, err := h.repo.FindOne(c, uuid)
+	user, err := h.repo.FindById(c, uuid)
 	if err != nil {
 		logger.Error("Requested user not found", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, models.NewApiError(err.Error()))
@@ -91,63 +87,45 @@ func (h *UsersHandlers) FindOne(c *gin.Context) {
 	}
 
 	dto := userResponse{
-		Id:           user.Id,
-		User_Name:    user.User_Name,
-		User_Surname: user.User_Surname,
-		Email:        user.Email,
-		User_Type:    user.User_Type,
+		UUID:      user.UUID,
+		Name:      user.Name,
+		Surname:   user.Surname,
+		Email:     user.Email,
+		User_Type: user.User_Type,
 	}
 
 	c.JSON(http.StatusOK, dto)
 }
 
-// Create godoc
-// @Summary 	Create User
-// @Tags 		users
+// FindByEmail godoc
+// @Summary 	Find By Email
+// @Tags		users
 // @Accept 		json
 // @Produce 	json
-// @Param		name 		query 		string 		true 		"User_Name"
-// @Param		surname 	query 		string 		true 		"User_Surname"
-// @Param		email 		query 		string 		true 		"Email"
-// @Param		type 		query 		string 		true 		"User_Type" Enum('Child', 'Parent', 'Content_manager', 'Administrator')
-// @Param		password 	query 		string 		true 		"Password"
-// @Success 	200 		{object} 	object{uuid=string}		"OK"
-// @Failure 	400 		{object} 	models.ApiError 		"Invalid Payload"
-// @Failure 	500 		{object} 	models.ApiError
-// @Router 		/users [post]
-func (h *UsersHandlers) Create(c *gin.Context) {
+// @Param 		email 	path 		string 	true 	"Email"
+// @Success 	200 	{object} 	userResponse 	"OK"
+// @Failure 	400 	{object} 	models.ApiError "Invalid user uuid"
+// @Router 		/users/{email} [get]
+// @Security Bearer
+func (h *UsersHandlers) FindByEmail(c *gin.Context) {
 	logger := logger.GetLogger()
-	var request createUserRequest
-	err := c.BindJSON(&request)
+	email := c.Param("email")
+	user, err := h.repo.FindByEmail(c, email)
 	if err != nil {
-		logger.Error("Failed JSON binding", zap.Error(err))
-		c.JSON(http.StatusBadRequest, models.NewApiError("Invalid payload"))
+		logger.Error("Requested user not found", zap.Error(err))
+		c.JSON(http.StatusInternalServerError, models.NewApiError(err.Error()))
 		return
 	}
 
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
-	if err != nil {
-		logger.Error("Error with password encrypting", zap.Error(err))
-		c.JSON(http.StatusInternalServerError, models.NewApiError("fail to hash password"))
-		return
+	dto := userResponse{
+		UUID:      user.UUID,
+		Name:      user.Name,
+		Surname:   user.Surname,
+		Email:     user.Email,
+		User_Type: user.User_Type,
 	}
 
-	user := models.User{
-		User_Name:    request.User_Name,
-		User_Surname: request.User_Surname,
-		Email:        request.Email,
-		User_Type:    request.User_Type,
-		PasswordHash: string(passwordHash),
-	}
-
-	id, err := h.repo.Create(c, user)
-	if err != nil {
-		logger.Error("Failed to create user", zap.Error(err))
-		c.JSON(http.StatusInternalServerError, models.NewApiError("Could not create user"))
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"uuid": id})
-
+	c.JSON(http.StatusOK, dto)
 }
 
 // Update godoc
@@ -160,14 +138,14 @@ func (h *UsersHandlers) Create(c *gin.Context) {
 // @Param 		surname 	query		string 		true 	"User Surname"
 // @Param 		email 		query		string 		true 	"Email"
 // @Success 	200 		"OK"
-// @Failure 	400 		{object}	models.ApiError 	"Invalid user uuid"
-// @Failure 	500 		{object}	models.ApiError
+// @Failure 	500 		{object}	models.ApiError 	"Invalid user uuid"
 // @Router 		/users/{uuid} [put]
+// @Security Bearer
 func (h *UsersHandlers) Update(c *gin.Context) {
 	logger := logger.GetLogger()
 	uuid := c.Param("uuid")
 
-	_, err := h.repo.FindOne(c, uuid)
+	_, err := h.repo.FindById(c, uuid)
 	if err != nil {
 		logger.Error("Requested user not found", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, models.NewApiError("Invalid user id"))
@@ -200,21 +178,21 @@ func (h *UsersHandlers) Update(c *gin.Context) {
 // @Param 		uuid 		path 		string 		true 	"User UUID"
 // @Param 		password 	query 		string	 	true 	"Password"
 // @Success 	200 		"OK"
-// @Failure 	400 		{object} 	models.ApiError	 	"Invalid user uuid"
-// @Failure 	500 		{object} 	models.ApiError
+// @Failure 	500 		{object} 	models.ApiError	 	"Invalid user uuid"
 // @Router 		/users/{uuid}/changePassword [patch]
+// @Security Bearer
 func (h *UsersHandlers) ChangePassword(c *gin.Context) {
 	logger := logger.GetLogger()
 	uuid := c.Param("uuid")
 
-	_, err := h.repo.FindOne(c, uuid)
+	_, err := h.repo.FindById(c, uuid)
 	if err != nil {
 		logger.Error("Requested user not found", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, models.NewApiError("Invalid user id"))
 		return
 	}
 
-	var userPasswordUpdate createUserRequest
+	var userPasswordUpdate changePasswordRequest
 	err = c.BindJSON(&userPasswordUpdate)
 	if err != nil {
 		logger.Error("Failed JSON binding", zap.Error(err))
@@ -246,14 +224,14 @@ func (h *UsersHandlers) ChangePassword(c *gin.Context) {
 // @Produce 	json
 // @Param 		uuid 	path 		string 		true 	"User UUID"
 // @Success 	200 	"OK"
-// @Failure 	400 	{object} 	models.ApiError 	"Invalid user uuid"
-// @Failure 	500 	{object} 	models.ApiError
+// @Failure 	500 	{object} 	models.ApiError 	"Invalid user uuid"
 // @Router 		/users/{uuid} [delete]
+// @Security Bearer
 func (h *UsersHandlers) Delete(c *gin.Context) {
 	logger := logger.GetLogger()
 	uuid := c.Param("uuid")
 
-	_, err := h.repo.FindOne(c, uuid)
+	_, err := h.repo.FindById(c, uuid)
 	if err != nil {
 		logger.Error("Requested user not found", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, models.NewApiError("Invalid user id"))
@@ -277,17 +255,17 @@ func (h *UsersHandlers) Delete(c *gin.Context) {
 // @Produce		json
 // @Param 		uuid 		path 		string 		true 	"User UUID"
 // @Success 	200 		"OK"
-// @Failure 	400 		{object} 	models.ApiError 	"Invalid user uuid"
-// @Failure 	500 		{object} 	models.ApiError
+// @Failure 	500 		{object} 	models.ApiError 	"Invalid user uuid"
 // @Router 		/users/{uuid}/deactivate [patch]
+// @Security Bearer
 func (h *UsersHandlers) Deactivate(c *gin.Context) {
 	logger := logger.GetLogger()
 	uuid := c.Param("uuid")
 
-	_, err := h.repo.FindOne(c, uuid)
+	_, err := h.repo.FindById(c, uuid)
 	if err != nil {
 		logger.Error("Requested user not found", zap.Error(err))
-		c.JSON(http.StatusInternalServerError, models.NewApiError("Invalid user id"))
+		c.JSON(http.StatusInternalServerError, models.NewApiError("Invalid user uuid"))
 		return
 	}
 
@@ -308,14 +286,14 @@ func (h *UsersHandlers) Deactivate(c *gin.Context) {
 // @Produce 	json
 // @Param 		uuid 	path 		string 		true 	"User UUID"
 // @Success 	200 	"OK"
-// @Failure 	400 	{object} 	models.ApiError 	"Invalid user uuid"
-// @Failure 	500 	{object} 	models.ApiError
+// @Failure 	500 	{object} 	models.ApiError 	"Invalid user uuid"
 // @Router 		/users/{uuid}/activate [patch]
+// @Security Bearer
 func (h *UsersHandlers) Activate(c *gin.Context) {
 	logger := logger.GetLogger()
 	uuid := c.Param("uuid")
 
-	_, err := h.repo.FindOne(c, uuid)
+	_, err := h.repo.FindById(c, uuid)
 	if err != nil {
 		logger.Error("Requested user not found", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, models.NewApiError("Invalid user id"))
