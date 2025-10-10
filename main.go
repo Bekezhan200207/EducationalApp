@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"go-EdTech/config"
 	"go-EdTech/handlers"
 	"go-EdTech/logger"
@@ -92,12 +93,28 @@ func loadConfig() error {
 
 	// Читаем переменные окружения (например, из Railway)
 	viper.AutomaticEnv()
+	// Bind specific environment variables
+	viper.BindEnv("APP_HOST")
+	viper.BindEnv("DB_CONNECTION_STRING")
+	viper.BindEnv("JWT_SECRET_KEY")
+	viper.BindEnv("JWT_EXPIRE_DURATION")
 
 	// Мапим переменные в структуру
 	var mapConfig config.MapConfig
 	err := viper.Unmarshal(&mapConfig)
 	if err != nil {
 		return err
+	}
+
+	// Validate required configuration
+	if mapConfig.DbConnectionString == "" {
+		return fmt.Errorf("DB_CONNECTION_STRING environment variable is required")
+	}
+	if mapConfig.JwtSecretKey == "" {
+		return fmt.Errorf("JWT_SECRET_KEY environment variable is required")
+	}
+	if mapConfig.AppHost == "" {
+		mapConfig.AppHost = ":8081" // Default value
 	}
 
 	config.Config = &mapConfig
