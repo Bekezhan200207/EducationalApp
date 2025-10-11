@@ -176,3 +176,9 @@ func (r *UsersRepository) Activate(c context.Context, strUUID string) error {
 
 	return nil
 }
+
+func (r *UsersRepository) CountByRoleID(ctx context.Context, roleID int) (int, error) {
+	var cnt int
+	err := r.db.QueryRow(ctx, `select COUNT(*) from users where role_id = $1`, roleID).Scan(&cnt)
+	return cnt, err
+}
