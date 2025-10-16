@@ -45,10 +45,9 @@ func NewLessonsHandler(
 // @Produce 	json
 // @Param 		id 		path		int 	true 	"Lesson_id"
 // @Success 	200 	{object}	models.Lesson "OK"
-// @Failure 	400 	{object}	models.ApiError
+// @Failure 	400 	{object}	models.ApiError "Invalid id"
 // @Failure 	500 	{object}	models.ApiError
 // @Router 		/lessons/{id} [get]
-// @Security 	Bearer
 func (h *LessonsHandler) FindById(c *gin.Context) {
 	logger := logger.GetLogger()
 
@@ -64,7 +63,7 @@ func (h *LessonsHandler) FindById(c *gin.Context) {
 
 	if err != nil {
 		logger.Error("Failed to find lesson", zap.Error(err))
-		c.JSON(http.StatusBadRequest, models.NewApiError(err.Error()))
+		c.JSON(http.StatusInternalServerError, models.NewApiError(err.Error()))
 		return
 	}
 
@@ -81,7 +80,6 @@ func (h *LessonsHandler) FindById(c *gin.Context) {
 // @Failure 	400 {object} models.ApiError
 // @Failure 	500 {object} models.ApiError
 // @Router 		/lessons [get]
-// @Security 	Bearer
 func (h *LessonsHandler) FindAll(c *gin.Context) {
 	logger := logger.GetLogger()
 
@@ -111,13 +109,12 @@ func (h *LessonsHandler) FindAll(c *gin.Context) {
 // @Param 		video_data 			query		string 			true 	"Lessons_video"
 // @Param 		video_filename 		query		string 			true 	"Lessons_video_filename"
 // @Param 		video_mime_type 	query		string 			true 	"Lessons_video_MIME-type"
-// @Param 		duration_sec 		query		string 			true 	"Lessons_video_duration_seconds"
+// @Param 		duration_sec 		query		int 			true 	"Lessons_video_duration_seconds"
 // @Param 		is_published 		query		boolean 		true 	"lessons_video_is_published"
 // @Success 	200 				{object} 	object{id=int} 	"OK"
 // @Failure 	400 				{object}	models.ApiError "Invalid Payload"
 // @Failure 	500 				{object} 	models.ApiError
 // @Router 		/lessons [post]
-// @Security 	Bearer
 func (h *LessonsHandler) Create(c *gin.Context) {
 	logger := logger.GetLogger()
 
@@ -126,7 +123,7 @@ func (h *LessonsHandler) Create(c *gin.Context) {
 	err := c.Bind(&request)
 	if err != nil {
 		logger.Error("Failed JSON binding", zap.Error(err))
-		c.JSON(http.StatusBadRequest, models.NewApiError("Error with binding"))
+		c.JSON(http.StatusBadRequest, models.NewApiError("Invalid payload"))
 		return
 	}
 
@@ -177,17 +174,16 @@ func (h *LessonsHandler) Create(c *gin.Context) {
 // @Param 		video_data 			query		string 			true 	"Lessons_video"
 // @Param 		video_filename 		query		string 			true 	"Lessons_video_filename"
 // @Param 		video_mime_type 	query		string 			true 	"Lessons_video_MIME-type"
-// @Param 		duration_sec 		query		string 			true 	"Lessons_video_duration_seconds"
+// @Param 		duration_sec 		query		int				true 	"Lessons_video_duration_seconds"
 // @Param 		is_published 		query		boolean 		true 	"lessons_video_is_published"
-// @Success 	200 				{object} 	object{id=int} 	"OK"
+// @Success 	200 			 	"OK"
 // @Failure 	400 				{object} 	models.ApiError "Invalid Payload"
 // @Failure 	500					{object} 	models.ApiError
 // @Router 		/lessons/{id} [put]
-// @Security 	Bearer
 func (g *LessonsHandler) Update(c *gin.Context) {
 	logger := logger.GetLogger()
 
-	idStr := c.Param("id")
+	idStr := c.Param("id") 
 
 	id, err := strconv.Atoi(idStr)
 
@@ -250,7 +246,6 @@ func (g *LessonsHandler) Update(c *gin.Context) {
 // @Failure 	400 	{object} 	models.ApiError "Invalid Payload"
 // @Failure 	500 	{object} 	models.ApiError
 // @Router 		/lessons/{id} [delete]
-// @Security 	Bearer
 func (g *LessonsHandler) Delete(c *gin.Context) {
 	logger := logger.GetLogger()
 

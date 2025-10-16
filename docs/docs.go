@@ -24,7 +24,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth/signIn": {
+        "/auth/login": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -33,9 +33,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "Auth"
                 ],
-                "summary": "User SignIn func using email and password",
+                "summary": "Вход пользователя в аккаунт, используя email и пароль",
                 "parameters": [
                     {
                         "type": "string",
@@ -58,6 +58,12 @@ const docTemplate = `{
                         "schema": {
                             "type": "object",
                             "properties": {
+                                " role": {
+                                    "type": "string"
+                                },
+                                " user": {
+                                    "$ref": "#/definitions/models.User"
+                                },
                                 "token": {
                                     "type": "string"
                                 }
@@ -85,11 +91,93 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/signUp": {
+        "/auth/logout": {
             "post": {
                 "security": [
                     {
-                        "Bearer": []
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Завершает текущую сессию пользователя",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Выход из системы",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/refresh": {
+            "post": {
+                "description": "Обновляет JWT токен с помощью refresh токена из cookie",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Обновление токена",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "expires": {
+                                    "type": "integer"
+                                },
+                                "token": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/signup": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
                     }
                 ],
                 "consumes": [
@@ -99,9 +187,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "users"
+                    "Auth"
                 ],
-                "summary": "Create User",
+                "summary": "Создание пользователя. Регистрация",
                 "parameters": [
                     {
                         "type": "string",
@@ -125,9 +213,9 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
-                        "description": "User_Type",
-                        "name": "type",
+                        "type": "integer",
+                        "description": "Role_id roles are: 1-Child, 2-Parent, 3-Content-manager, 4-Administrator",
+                        "name": "role_id",
                         "in": "query",
                         "required": true
                     },
@@ -145,6 +233,15 @@ const docTemplate = `{
                         "schema": {
                             "type": "object",
                             "properties": {
+                                " role": {
+                                    "type": "string"
+                                },
+                                " token": {
+                                    "type": "string"
+                                },
+                                " user": {
+                                    "$ref": "#/definitions/models.User"
+                                },
                                 "uuid": {
                                     "type": "string"
                                 }
@@ -166,70 +263,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/auth/singOut": {
-            "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "users"
-                ],
-                "summary": "Sign out",
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    }
-                }
-            }
-        },
-        "/auth/userInfo": {
-            "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "users"
-                ],
-                "summary": "Get user Info",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/handlers.userResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/models.ApiError"
-                        }
-                    }
-                }
-            }
-        },
         "/courses": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -259,11 +294,6 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -290,7 +320,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
+                        "type": "boolean",
                         "description": "is_published",
                         "name": "is_published",
                         "in": "query",
@@ -310,7 +340,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "error with json dinding",
                         "schema": {
                             "$ref": "#/definitions/models.ApiError"
                         }
@@ -326,11 +356,6 @@ const docTemplate = `{
         },
         "/courses/{id}": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -358,7 +383,13 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "invalid course id",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/models.ApiError"
                         }
@@ -366,11 +397,6 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -397,7 +423,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
+                        "type": "boolean",
                         "description": "is_published",
                         "name": "is_published",
                         "in": "query",
@@ -406,15 +432,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "id": {
-                                    "type": "integer"
-                                }
-                            }
-                        }
+                        "description": "OK"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -431,11 +449,6 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -460,7 +473,7 @@ const docTemplate = `{
                         "description": "OK"
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid Id",
                         "schema": {
                             "$ref": "#/definitions/models.ApiError"
                         }
@@ -476,11 +489,6 @@ const docTemplate = `{
         },
         "/lessons": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -516,11 +524,6 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -610,7 +613,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
+                        "type": "integer",
                         "description": "Lessons_video_duration_seconds",
                         "name": "duration_sec",
                         "in": "query",
@@ -653,11 +656,6 @@ const docTemplate = `{
         },
         "/lessons/{id}": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -685,7 +683,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid id",
                         "schema": {
                             "$ref": "#/definitions/models.ApiError"
                         }
@@ -699,11 +697,6 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -800,7 +793,7 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "type": "string",
+                        "type": "integer",
                         "description": "Lessons_video_duration_seconds",
                         "name": "duration_sec",
                         "in": "query",
@@ -816,15 +809,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "properties": {
-                                "id": {
-                                    "type": "integer"
-                                }
-                            }
-                        }
+                        "description": "OK"
                     },
                     "400": {
                         "description": "Invalid Payload",
@@ -841,11 +826,6 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -886,11 +866,6 @@ const docTemplate = `{
         },
         "/subjects": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -922,11 +897,6 @@ const docTemplate = `{
         },
         "/subjects/{id}": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -968,11 +938,6 @@ const docTemplate = `{
                 }
             },
             "put": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -985,8 +950,15 @@ const docTemplate = `{
                 "summary": "update subject",
                 "parameters": [
                     {
+                        "type": "integer",
+                        "description": "Subject_id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "type": "string",
-                        "description": "Subject_title",
+                        "description": "Subject_name",
                         "name": "title",
                         "in": "query",
                         "required": true
@@ -1011,11 +983,6 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1029,7 +996,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Subject_title",
+                        "description": "Subject_name",
                         "name": "title",
                         "in": "query",
                         "required": true
@@ -1062,11 +1029,6 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1107,11 +1069,6 @@ const docTemplate = `{
         },
         "/users": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1143,11 +1100,6 @@ const docTemplate = `{
         },
         "/users/{email}": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1185,11 +1137,6 @@ const docTemplate = `{
         },
         "/users/{uuid}": {
             "get": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1283,11 +1230,6 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1311,8 +1253,14 @@ const docTemplate = `{
                     "200": {
                         "description": "OK"
                     },
-                    "500": {
+                    "400": {
                         "description": "Invalid user uuid",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/models.ApiError"
                         }
@@ -1350,8 +1298,14 @@ const docTemplate = `{
                     "200": {
                         "description": "OK"
                     },
-                    "500": {
+                    "400": {
                         "description": "Invalid user uuid",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/models.ApiError"
                         }
@@ -1361,11 +1315,6 @@ const docTemplate = `{
         },
         "/users/{uuid}/changePassword": {
             "patch": {
-                "security": [
-                    {
-                        "Bearer": []
-                    }
-                ],
                 "consumes": [
                     "application/json"
                 ],
@@ -1396,8 +1345,14 @@ const docTemplate = `{
                     "200": {
                         "description": "OK"
                     },
-                    "500": {
+                    "400": {
                         "description": "Invalid user uuid",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/models.ApiError"
                         }
@@ -1435,8 +1390,14 @@ const docTemplate = `{
                     "200": {
                         "description": "OK"
                     },
-                    "500": {
+                    "400": {
                         "description": "Invalid user uuid",
+                        "schema": {
+                            "$ref": "#/definitions/models.ApiError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/models.ApiError"
                         }
@@ -1455,10 +1416,10 @@ const docTemplate = `{
                 "name": {
                     "type": "string"
                 },
-                "surname": {
-                    "type": "string"
+                "role_id": {
+                    "type": "integer"
                 },
-                "user_type": {
+                "surname": {
                     "type": "string"
                 },
                 "uuid": {
@@ -1477,20 +1438,20 @@ const docTemplate = `{
         "models.Course": {
             "type": "object",
             "properties": {
-                "course_id": {
-                    "type": "integer"
-                },
-                "course_title": {
-                    "type": "string"
-                },
                 "created_at": {
                     "type": "string"
                 },
                 "description": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "integer"
+                },
                 "is_published": {
                     "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
                 },
                 "updated_at": {
                     "type": "string"
@@ -1560,7 +1521,30 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "title": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.User": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "passwordHash": {
+                    "type": "string"
+                },
+                "role_id": {
+                    "type": "integer"
+                },
+                "surname": {
+                    "type": "string"
+                },
+                "uuid": {
                     "type": "string"
                 }
             }
@@ -1575,7 +1559,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "api.ozinshe.com",
+	Host:             "https://ilessons.cloud/go/api",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "EdTech API",

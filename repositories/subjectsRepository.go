@@ -21,8 +21,8 @@ func (r *SubjectsRepository) FindById(c context.Context, id int) (models.Subject
 	logger := logger.GetLogger()
 
 	var subject models.Subject
-	row := r.db.QueryRow(c, "select subject_id, subject_name from subjects where subject_id = $1", id)
-	err := row.Scan(&subject.Id, &subject.Title)
+	row := r.db.QueryRow(c, "select id, name from subjects where id = $1", id)
+	err := row.Scan(&subject.Id, &subject.Name)
 	if err != nil {
 		logger.Error("could not scan query row", zap.String("db_msg", err.Error()))
 		return models.Subject{}, err
@@ -34,7 +34,7 @@ func (r *SubjectsRepository) FindById(c context.Context, id int) (models.Subject
 func (r *SubjectsRepository) FindAll(c context.Context) ([]models.Subject, error) {
 	logger := logger.GetLogger()
 
-	rows, err := r.db.Query(c, "select subject_id, subject_name from subjects")
+	rows, err := r.db.Query(c, "select id, name from subjects")
 	if err != nil {
 		logger.Error("could not query database", zap.String("db_msg", err.Error()))
 		return []models.Subject{}, err
@@ -45,7 +45,7 @@ func (r *SubjectsRepository) FindAll(c context.Context) ([]models.Subject, error
 
 	for rows.Next() {
 		var subject models.Subject
-		err := rows.Scan(&subject.Id, &subject.Title)
+		err := rows.Scan(&subject.Id, &subject.Name)
 		if err != nil {
 			logger.Error("could not scan query row", zap.String("db_msg", err.Error()))
 			return nil, err
@@ -61,7 +61,7 @@ func (r *SubjectsRepository) Create(c context.Context, subject models.Subject) (
 	logger := logger.GetLogger()
 
 	var id int
-	row := r.db.QueryRow(c, "insert into subjects(subject_name) values($1) returning subject_id", subject.Title)
+	row := r.db.QueryRow(c, "insert into subjects(name) values($1) returning id", subject.Name)
 	err := row.Scan(&id)
 	if err != nil {
 		logger.Error("could not scan query row", zap.String("db_msg", err.Error()))
@@ -75,7 +75,7 @@ func (r *SubjectsRepository) Create(c context.Context, subject models.Subject) (
 func (r *SubjectsRepository) Update(c context.Context, id int, Updsubject models.Subject) error {
 	logger := logger.GetLogger()
 
-	_, err := r.db.Exec(c, "update subjects set subject_name = $1 where subject_id = $2", Updsubject.Title, id)
+	_, err := r.db.Exec(c, "update subjects set name = $1 where id = $2", Updsubject.Name, id)
 	if err != nil {
 		logger.Error("could not execute in database", zap.String("db_msg", err.Error()))
 		return err
@@ -86,7 +86,7 @@ func (r *SubjectsRepository) Update(c context.Context, id int, Updsubject models
 func (r *SubjectsRepository) Delete(c context.Context, id int) error {
 	logger := logger.GetLogger()
 
-	_, err := r.db.Exec(c, "delete from subjects where subject_id = $1", id)
+	_, err := r.db.Exec(c, "delete from subjects where id = $1", id)
 	if err != nil {
 		logger.Error("could not execute in database", zap.String("db_msg", err.Error()))
 		return err

@@ -28,7 +28,7 @@ import (
 // @license.name 	Apache 2.0
 // @license.url 	http://www.apache.org/licenses/LICENSE-2.0.html
 //
-// @host 			api.ozinshe.com
+// @host 			https://ilessons.cloud/go/api
 // @BasePath 		/
 //
 // @externalDocs.description 	OpenAPI
@@ -52,9 +52,10 @@ func main() {
 	)
 
 	corsConfig := cors.Config{
-		AllowAllOrigins: true,
-		AllowHeaders:    []string{"*"},
-		AllowMethods:    []string{"*"},
+		AllowOrigins:     []string{"https://ilessons.cloud/go/api"},
+		AllowHeaders:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowMethods:     []string{"*"},
+		AllowCredentials: true,
 	}
 
 	r.Use(cors.New(corsConfig))

@@ -6,7 +6,7 @@ type User struct {
 	UUID         uuid.UUID
 	Name         string
 	Surname      string
-	User_Type    string
+	Role_id      int
 	Email        string
 	PasswordHash string
 }

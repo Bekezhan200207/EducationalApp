@@ -23,7 +23,7 @@ func HashPassword(password string) (string, error){
 }
 
 
-func GenerateRefreshToken(userID int) (string, error) {
+func GenerateRefreshToken(userUUID string) (string, error) {
     logger := logger.GetLogger()
     // Генерация случайных данных для подписи
     b := make([]byte, 32)
@@ -32,18 +32,15 @@ func GenerateRefreshToken(userID int) (string, error) {
         return "", err
     }
 
-    // Кодируем user_id в base64
-    userIDBase64 := base64.URLEncoding.EncodeToString([]byte(fmt.Sprintf("%d", userID)))
-
     // HMAC для подписи
     mac := hmac.New(sha256.New, []byte(config.Config.JwtSecretKey))
     mac.Write(b)
     signature := mac.Sum(nil)
 
     // Генерация refresh token в формате userID.signature
-    refreshToken := fmt.Sprintf("%s.%s", userIDBase64, base64.URLEncoding.EncodeToString(signature))
+    refreshToken := fmt.Sprintf("%s.%s", userUUID, base64.URLEncoding.EncodeToString(signature))
     
-    logger.Debug("Refresh token generated", zap.Any("user_id", userID))
+    logger.Debug("Refresh token generated", zap.Any("user_uuid", userUUID))
 
     return refreshToken, nil
 }

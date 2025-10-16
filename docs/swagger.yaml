@@ -6,9 +6,9 @@ definitions:
         type: string
       name:
         type: string
+      role_id:
+        type: integer
       surname:
-        type: string
-      user_type:
         type: string
       uuid:
         type: string
@@ -20,16 +20,16 @@ definitions:
     type: object
   models.Course:
     properties:
-      course_id:
-        type: integer
-      course_title:
-        type: string
       created_at:
         type: string
       description:
         type: string
+      id:
+        type: integer
       is_published:
         type: boolean
+      name:
+        type: string
       updated_at:
         type: string
     type: object
@@ -75,13 +75,28 @@ definitions:
     properties:
       id:
         type: integer
-      title:
+      name:
+        type: string
+    type: object
+  models.User:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      passwordHash:
+        type: string
+      role_id:
+        type: integer
+      surname:
+        type: string
+      uuid:
         type: string
     type: object
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open.api/
-host: api.ozinshe.com
+host: https://ilessons.cloud/go/api
 info:
   contact:
     email: support@swagger.io
@@ -95,7 +110,7 @@ info:
   title: EdTech API
   version: "1.0"
 paths:
-  /auth/signIn:
+  /auth/login:
     post:
       consumes:
       - application/json
@@ -117,6 +132,10 @@ paths:
           description: OK
           schema:
             properties:
+              ' role':
+                type: string
+              ' user':
+                $ref: '#/definitions/models.User'
               token:
                 type: string
             type: object
@@ -132,10 +151,62 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ApiError'
-      summary: User SignIn func using email and password
+      summary: Вход пользователя в аккаунт, используя email и пароль
       tags:
-      - users
-  /auth/signUp:
+      - Auth
+  /auth/logout:
+    post:
+      description: Завершает текущую сессию пользователя
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              message:
+                type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.ApiError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ApiError'
+      security:
+      - ApiKeyAuth: []
+      summary: Выход из системы
+      tags:
+      - Auth
+  /auth/refresh:
+    post:
+      description: Обновляет JWT токен с помощью refresh токена из cookie
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            properties:
+              expires:
+                type: integer
+              token:
+                type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ApiError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ApiError'
+      summary: Обновление токена
+      tags:
+      - Auth
+  /auth/signup:
     post:
       consumes:
       - application/json
@@ -155,11 +226,11 @@ paths:
         name: email
         required: true
         type: string
-      - description: User_Type
+      - description: 'Role_id roles are: 1-Child, 2-Parent, 3-Content-manager, 4-Administrator'
         in: query
-        name: type
+        name: role_id
         required: true
-        type: string
+        type: integer
       - description: Password
         in: query
         name: password
@@ -172,6 +243,12 @@ paths:
           description: OK
           schema:
             properties:
+              ' role':
+                type: string
+              ' token':
+                type: string
+              ' user':
+                $ref: '#/definitions/models.User'
               uuid:
                 type: string
             type: object
@@ -184,44 +261,10 @@ paths:
           schema:
             $ref: '#/definitions/models.ApiError'
       security:
-      - Bearer: []
-      summary: Create User
+      - ApiKeyAuth: []
+      summary: Создание пользователя. Регистрация
       tags:
-      - users
-  /auth/singOut:
-    post:
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-      security:
-      - Bearer: []
-      summary: Sign out
-      tags:
-      - users
-  /auth/userInfo:
-    get:
-      consumes:
-      - application/json
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/handlers.userResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.ApiError'
-      security:
-      - Bearer: []
-      summary: Get user Info
-      tags:
-      - users
+      - Auth
   /courses:
     get:
       consumes:
@@ -239,8 +282,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ApiError'
-      security:
-      - Bearer: []
       summary: find all courses
       tags:
       - courses
@@ -262,7 +303,7 @@ paths:
         in: query
         name: is_published
         required: true
-        type: string
+        type: boolean
       produces:
       - application/json
       responses:
@@ -274,15 +315,13 @@ paths:
                 type: integer
             type: object
         "400":
-          description: Bad Request
+          description: error with json dinding
           schema:
             $ref: '#/definitions/models.ApiError'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ApiError'
-      security:
-      - Bearer: []
       summary: create course
       tags:
       - courses
@@ -302,15 +341,13 @@ paths:
         "200":
           description: OK
         "400":
-          description: Bad Request
+          description: Invalid Id
           schema:
             $ref: '#/definitions/models.ApiError'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ApiError'
-      security:
-      - Bearer: []
       summary: delete course by id
       tags:
       - courses
@@ -331,11 +368,13 @@ paths:
           schema:
             $ref: '#/definitions/models.Course'
         "400":
-          description: Bad Request
+          description: invalid course id
           schema:
             $ref: '#/definitions/models.ApiError'
-      security:
-      - Bearer: []
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ApiError'
       summary: find course by id
       tags:
       - courses
@@ -357,17 +396,12 @@ paths:
         in: query
         name: is_published
         required: true
-        type: string
+        type: boolean
       produces:
       - application/json
       responses:
         "200":
           description: OK
-          schema:
-            properties:
-              id:
-                type: integer
-            type: object
         "400":
           description: Bad Request
           schema:
@@ -376,8 +410,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ApiError'
-      security:
-      - Bearer: []
       summary: update course
       tags:
       - courses
@@ -402,8 +434,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ApiError'
-      security:
-      - Bearer: []
       summary: Find all lessons
       tags:
       - lessons
@@ -470,7 +500,7 @@ paths:
         in: query
         name: duration_sec
         required: true
-        type: string
+        type: integer
       - description: lessons_video_is_published
         in: query
         name: is_published
@@ -494,8 +524,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ApiError'
-      security:
-      - Bearer: []
       summary: Create Lesson
       tags:
       - lessons
@@ -522,8 +550,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ApiError'
-      security:
-      - Bearer: []
       summary: delete lesson by id
       tags:
       - lessons
@@ -544,15 +570,13 @@ paths:
           schema:
             $ref: '#/definitions/models.Lesson'
         "400":
-          description: Bad Request
+          description: Invalid id
           schema:
             $ref: '#/definitions/models.ApiError'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ApiError'
-      security:
-      - Bearer: []
       summary: find lesson by id
       tags:
       - lessons
@@ -624,7 +648,7 @@ paths:
         in: query
         name: duration_sec
         required: true
-        type: string
+        type: integer
       - description: lessons_video_is_published
         in: query
         name: is_published
@@ -635,11 +659,6 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            properties:
-              id:
-                type: integer
-            type: object
         "400":
           description: Invalid Payload
           schema:
@@ -648,8 +667,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ApiError'
-      security:
-      - Bearer: []
       summary: Update Lesson
       tags:
       - lessons
@@ -670,8 +687,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ApiError'
-      security:
-      - Bearer: []
       summary: find all subjects
       tags:
       - subjects
@@ -698,8 +713,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ApiError'
-      security:
-      - Bearer: []
       summary: delete subject by id
       tags:
       - subjects
@@ -727,8 +740,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ApiError'
-      security:
-      - Bearer: []
       summary: find subject by id
       tags:
       - subjects
@@ -736,7 +747,7 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: Subject_title
+      - description: Subject_name
         in: query
         name: title
         required: true
@@ -759,8 +770,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ApiError'
-      security:
-      - Bearer: []
       summary: create subject
       tags:
       - subjects
@@ -768,7 +777,12 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: Subject_title
+      - description: Subject_id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Subject_name
         in: query
         name: title
         required: true
@@ -786,8 +800,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ApiError'
-      security:
-      - Bearer: []
       summary: update subject
       tags:
       - subjects
@@ -808,8 +820,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ApiError'
-      security:
-      - Bearer: []
       summary: Get All Users
       tags:
       - users
@@ -834,8 +844,6 @@ paths:
           description: Invalid user uuid
           schema:
             $ref: '#/definitions/models.ApiError'
-      security:
-      - Bearer: []
       summary: Find By Email
       tags:
       - users
@@ -854,12 +862,14 @@ paths:
       responses:
         "200":
           description: OK
-        "500":
+        "400":
           description: Invalid user uuid
           schema:
             $ref: '#/definitions/models.ApiError'
-      security:
-      - Bearer: []
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ApiError'
       summary: Delete User
       tags:
       - users
@@ -883,8 +893,6 @@ paths:
           description: Invalid user uuid
           schema:
             $ref: '#/definitions/models.ApiError'
-      security:
-      - Bearer: []
       summary: Find By Id
       tags:
       - users
@@ -941,8 +949,12 @@ paths:
       responses:
         "200":
           description: OK
-        "500":
+        "400":
           description: Invalid user uuid
+          schema:
+            $ref: '#/definitions/models.ApiError'
+        "500":
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ApiError'
       security:
@@ -970,12 +982,14 @@ paths:
       responses:
         "200":
           description: OK
-        "500":
+        "400":
           description: Invalid user uuid
           schema:
             $ref: '#/definitions/models.ApiError'
-      security:
-      - Bearer: []
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ApiError'
       summary: ChangePassword User
       tags:
       - users
@@ -994,8 +1008,12 @@ paths:
       responses:
         "200":
           description: OK
-        "500":
+        "400":
           description: Invalid user uuid
+          schema:
+            $ref: '#/definitions/models.ApiError'
+        "500":
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/models.ApiError'
       security:

@@ -80,7 +80,7 @@ func (r *Lessonsrepository) FindById(c context.Context, id int) (models.Lesson, 
 			&les.Created_at,
 			&les.Updated_at,
 			&sub.Id,
-			&sub.Title,
+			&sub.Name,
 		)
 
 		if err != nil {
@@ -167,7 +167,7 @@ func (r *Lessonsrepository) FindAll(c context.Context) ([]models.Lesson, error) 
 			&les.Created_at,
 			&les.Updated_at,
 			&sub.Id,
-			&sub.Title,
+			&sub.Name,
 		)
 		if err != nil {
 			logger.Error("could not scan query row", zap.String("db_msg", err.Error()))

@@ -29,7 +29,6 @@ func NewSubjectsHandlers(repo *repositories.SubjectsRepository) *SubjectsHandler
 // @Failure 	400 	{object} 	models.ApiError "Invalid Payload"
 // @Failure 	500 	{object} 	models.ApiError
 // @Router 		/subjects/{id} [get]
-// @Security 	Bearer
 func (g *SubjectsHandlers) FindById(c *gin.Context) {
 	logger := logger.GetLogger()
 	idStr := c.Param("id")
@@ -59,7 +58,6 @@ func (g *SubjectsHandlers) FindById(c *gin.Context) {
 // @Success 	200 {object} []models.Subject "OK"
 // @Failure 	500 {object} models.ApiError
 // @Router 		/subjects [get]
-// @Security 	Bearer
 func (g *SubjectsHandlers) FindAll(c *gin.Context) {
 	logger := logger.GetLogger()
 
@@ -78,12 +76,11 @@ func (g *SubjectsHandlers) FindAll(c *gin.Context) {
 // @Tags 		subjects
 // @Accept 		json
 // @Produce 	json
-// @Param		title 	query 		string 		true 	"Subject_title"
+// @Param		title 	query 		string 		true 	"Subject_name"
 // @Success 	200 	{object} 	object{id=int} 		"OK"
 // @Failure 	400 	{object}	models.ApiError 	"Invalid Payload"
 // @Failure 	500 	{object} 	models.ApiError
 // @Router 		/subjects/{id} [post]
-// @Security 	Bearer
 func (g *SubjectsHandlers) Create(c *gin.Context) {
 	logger := logger.GetLogger()
 	var subjectRequest models.Subject
@@ -96,7 +93,7 @@ func (g *SubjectsHandlers) Create(c *gin.Context) {
 	}
 
 	subject := models.Subject{
-		Title: subjectRequest.Title,
+		Name: subjectRequest.Name,
 	}
 
 	id, err := g.repo.Create(c, subject)
@@ -117,12 +114,12 @@ func (g *SubjectsHandlers) Create(c *gin.Context) {
 // @Tags 		subjects
 // @Accept		json
 // @Produce 	json
-// @Param 		title 	query 		string 		true 	"Subject_title"
+// @Param 		id 		path 		int 		true 	"Subject_id"
+// @Param 		title 	query 		string 		true 	"Subject_name"
 // @Success 	200 	"OK"
 // @Failure 	400 	{object} 	models.ApiError 	"Invalid Payload"
 // @Failure 	500 	{object} 	models.ApiError
 // @Router 		/subjects/{id} [put]
-// @Security 	Bearer
 func (g *SubjectsHandlers) Update(c *gin.Context) {
 	logger := logger.GetLogger()
 
@@ -151,7 +148,7 @@ func (g *SubjectsHandlers) Update(c *gin.Context) {
 	}
 
 	updGenre := models.Subject{
-		Title: request.Title,
+		Name: request.Name,
 	}
 
 	err = g.repo.Update(c, id, updGenre)
@@ -175,7 +172,6 @@ func (g *SubjectsHandlers) Update(c *gin.Context) {
 // @Failure 	400 	{object} 	models.ApiError "Invalid Payload"
 // @Failure 	500 	{object} 	models.ApiError
 // @Router 		/subjects/{id} [delete]
-// @Security 	Bearer
 func (g *SubjectsHandlers) Delete(c *gin.Context) {
 	logger := logger.GetLogger()
 

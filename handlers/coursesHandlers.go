@@ -28,31 +28,30 @@ type courseRequest struct {
 	Is_published bool   `json:"is_published"`
 }
 
-// Create 		godoc
-// @Summary 	create course
-// @Tags 		courses
-// @Accept 		json
-// @Produce 	json
-// @Param 		title 			query 		string		true	 	"title"
-// @Param 		description 	query 		string 		true 	"description"
-// @Param 		is_published 	query 		string 		true 	"is_published"
-// @Success 	200 			{object} 	object{id=int} "OK"
-// @Failure 	400 			{object} 	models.ApiError
-// @Failure 	500 			{object} 	models.ApiError
-// @Router 		/courses [post]
-// @Security 	Bearer
+// Create course	godoc
+// @Summary 		create course
+// @Tags 			courses
+// @Accept 			json
+// @Produce 		json
+// @Param 			title 			query 		string		true	"title"
+// @Param 			description 	query 		string 		true 	"description"
+// @Param 			is_published 	query 		boolean 	true 	"is_published"
+// @Success 		200 			{object} 	object{id=int} 		"OK"
+// @Failure 		400 			{object} 	models.ApiError		"error with json dinding"
+// @Failure 		500 			{object} 	models.ApiError
+// @Router 			/courses [post]
 func (h *CoursesHandlers) Create(c *gin.Context) {
 	logger := logger.GetLogger()
 	var request courseRequest
 	err := c.ShouldBind(&request)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, models.NewApiError("couldn't create course request"))
-		logger.Error("Invalid course ID format", zap.Error(err))
+		logger.Error("Could not bind json data", zap.Error(err))
 		return
 	}
 
 	course := models.Course{
-		Course_title: request.Course_title,
+		Name:         request.Course_title,
 		Description:  request.Description,
 		Is_published: request.Is_published,
 	}
@@ -76,9 +75,9 @@ func (h *CoursesHandlers) Create(c *gin.Context) {
 // @Produce 	json
 // @Param 		id 		path 		int 	true 	"id"
 // @Success 	200 	{object} 	models.Course "OK"
-// @Failure 	400 	{object} 	models.ApiError
+// @Failure 	400 	{object} 	models.ApiError "invalid course id"
+// @Failure 	500 	{object} 	models.ApiError
 // @Router 		/courses/{id} [get]
-// @Security 	Bearer
 func (h *CoursesHandlers) FindById(c *gin.Context) {
 	logger := logger.GetLogger()
 	idStr := c.Param("id")
@@ -92,7 +91,7 @@ func (h *CoursesHandlers) FindById(c *gin.Context) {
 	course, err := h.coursesRepo.FindById(c, id)
 	if err != nil {
 		logger.Error("Course doesn't exist", zap.Error(err))
-		c.JSON(http.StatusBadRequest, models.NewApiError(err.Error()))
+		c.JSON(http.StatusInternalServerError, models.NewApiError(err.Error()))
 		return
 	}
 	c.JSON(http.StatusOK, course)
@@ -106,7 +105,6 @@ func (h *CoursesHandlers) FindById(c *gin.Context) {
 // @Success 	200 	{object} []models.Course "OK"
 // @Failure 	500 	{object} models.ApiError
 // @Router 		/courses [get]
-// @Security 	Bearer
 func (g *CoursesHandlers) FindAll(c *gin.Context) {
 	logger := logger.GetLogger()
 
@@ -127,12 +125,11 @@ func (g *CoursesHandlers) FindAll(c *gin.Context) {
 // @Produce 	json
 // @Param 		title 			query 		string 		true 	"title"
 // @Param 		description 	query 		string 		true 	"description"
-// @Param 		is_published	query 		string 		true 	"is_published"
-// @Success 	200 			{object} 	object{id=int} "OK"
+// @Param 		is_published	query 		boolean		true 	"is_published"
+// @Success 	200  	"OK"
 // @Failure 	400 			{object} 	models.ApiError
 // @Failure 	500 			{object} 	models.ApiError
 // @Router 		/courses/{id} [put]
-// @Security 	Bearer
 func (g *CoursesHandlers) Update(c *gin.Context) {
 	logger := logger.GetLogger()
 
@@ -161,7 +158,7 @@ func (g *CoursesHandlers) Update(c *gin.Context) {
 	}
 
 	updCourse := models.Course{
-		Course_title: request.Course_title,
+		Name:         request.Course_title,
 		Description:  request.Description,
 		Is_published: request.Is_published,
 	}
@@ -184,10 +181,9 @@ func (g *CoursesHandlers) Update(c *gin.Context) {
 // @Produce 	json
 // @Param 		id		path 		int		true 	"id"
 // @Success 	200 	"OK"
-// @Failure 	400 	{object} 	models.ApiError
+// @Failure 	400 	{object} 	models.ApiError "Invalid Id"
 // @Failure 	500 	{object} 	models.ApiError
 // @Router 		/courses/{id} [delete]
-// @Security 	Bearer
 func (g *CoursesHandlers) Delete(c *gin.Context) {
 	logger := logger.GetLogger()
 
