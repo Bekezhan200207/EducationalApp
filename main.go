@@ -27,7 +27,7 @@ import (
 // @license.name 	Apache 2.0
 // @license.url 	http://www.apache.org/licenses/LICENSE-2.0.html
 //
-// @host 			https://ilessons.cloud/go/api
+// @host 			ilessons.cloud/go/api
 // @BasePath 		/
 //
 // @externalDocs.description 	OpenAPI

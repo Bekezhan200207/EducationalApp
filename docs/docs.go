@@ -1559,7 +1559,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "https://ilessons.cloud/go/api",
+	Host:             "ilessons.cloud/go/api",
 	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "EdTech API",
