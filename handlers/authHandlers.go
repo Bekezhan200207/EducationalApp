@@ -48,8 +48,8 @@ type registerNewUserRequest struct {
 // @Tags 		Auth
 // @Accept 		json
 // @Produce 	json
-// @Param		email 		query 		string 		true 		"Email"
-// @Param 		password 	query 		string 		true 		"Password"
+// @Param		email 		query 		string 		true 		"email"
+// @Param 		password 	query 		string 		true 		"password"
 // @Success 	200 		{object} 	object{token=string, user=models.User, role=string} 	"OK"
 // @Failure 	400 		{object} 	models.ApiError 		"Invalid request Payload"
 // @Failure 	401 		{object} 	models.ApiError 		"Invalid credentials"
@@ -201,11 +201,7 @@ func (h *AuthHandlers) generateJWTToken(c context.Context, userUUID string, role
 // @Tags 		Auth
 // @Accept 		json
 // @Produce 	json
-// @Param		name 		query 		string 		true 													"Name"
-// @Param		surname 	query 		string 		true 													"Surname"
-// @Param		email 		query 		string 		true 													"Email"
-// @Param		role_id 	query 		int 		true 													"Role_id roles are: 1-Child, 2-Parent, 3-Content-manager, 4-Administrator"
-// @Param		password 	query 		string 		true 													"Password"
+// @Param		user body registerNewUserRequest true "user credentials"
 // @Success 	200 		{object} 	object{uuid=string, token=string, user=models.User, role=string}	"OK"
 // @Failure 	400 		{object} 	models.ApiError 		"Invalid Payload"
 // @Failure 	500 		{object} 	models.ApiError
