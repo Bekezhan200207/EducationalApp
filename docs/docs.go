@@ -38,18 +38,13 @@ const docTemplate = `{
                 "summary": "Вход пользователя в аккаунт, используя email и пароль",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "email",
-                        "name": "email",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "password",
-                        "name": "password",
-                        "in": "query",
-                        "required": true
+                        "description": "user credentials",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.signinRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -1397,6 +1392,17 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "surname": {
+                    "type": "string"
+                }
+            }
+        },
+        "handlers.signinRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
                     "type": "string"
                 }
             }

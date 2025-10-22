@@ -13,6 +13,13 @@ definitions:
       surname:
         type: string
     type: object
+  handlers.signinRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
   handlers.userResponse:
     properties:
       email:
@@ -128,16 +135,12 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: email
-        in: query
-        name: email
+      - description: user credentials
+        in: body
+        name: user
         required: true
-        type: string
-      - description: password
-        in: query
-        name: password
-        required: true
-        type: string
+        schema:
+          $ref: '#/definitions/handlers.signinRequest'
       produces:
       - application/json
       responses:

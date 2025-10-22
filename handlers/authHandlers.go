@@ -48,8 +48,7 @@ type registerNewUserRequest struct {
 // @Tags 		Auth
 // @Accept 		json
 // @Produce 	json
-// @Param		email 		query 		string 		true 		"email"
-// @Param 		password 	query 		string 		true 		"password"
+// @Param		user body signinRequest true "user credentials"
 // @Success 	200 		{object} 	object{token=string, user=models.User, role=string} 	"OK"
 // @Failure 	400 		{object} 	models.ApiError 		"Invalid request Payload"
 // @Failure 	401 		{object} 	models.ApiError 		"Invalid credentials"
