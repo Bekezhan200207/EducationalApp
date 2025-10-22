@@ -8,7 +8,6 @@ import (
 	"go-EdTech/logger"
 	"time"
 
-	"github.com/gin-contrib/cors"
 	ginzap "github.com/gin-contrib/zap"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -51,14 +50,26 @@ func main() {
 		ginzap.RecoveryWithZap(logger, true),
 	)
 
-	corsConfig := cors.Config{
-		AllowOrigins:     []string{"https://ilessons.cloud/go/api"},
-		AllowHeaders:     []string{"Content-Type, Authorization"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowCredentials: true,
-	}
+	r.Use(func(c *gin.Context) {
+		origin := c.Request.Header.Get("Origin")
 
-	r.Use(cors.New(corsConfig))
+		// Разрешаем только нужные фронты
+		if origin == "https://ilessons.cloud/go/api" {
+			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+			c.Writer.Header().Set("Vary", "Origin") // чтобы браузеры кэш правильно делали
+		}
+
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	})
 
 	logger.Info("Loading configuration...")
 	err := loadConfig()
