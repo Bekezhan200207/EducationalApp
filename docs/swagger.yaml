@@ -1,5 +1,18 @@
 basePath: /
 definitions:
+  handlers.registerNewUserRequest:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      role_id:
+        type: integer
+      surname:
+        type: string
+    type: object
   handlers.userResponse:
     properties:
       email:
@@ -115,12 +128,12 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: Email
+      - description: email
         in: query
         name: email
         required: true
         type: string
-      - description: Password
+      - description: password
         in: query
         name: password
         required: true
@@ -211,31 +224,12 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: Name
-        in: query
-        name: name
+      - description: user credentials
+        in: body
+        name: user
         required: true
-        type: string
-      - description: Surname
-        in: query
-        name: surname
-        required: true
-        type: string
-      - description: Email
-        in: query
-        name: email
-        required: true
-        type: string
-      - description: 'Role_id roles are: 1-Child, 2-Parent, 3-Content-manager, 4-Administrator'
-        in: query
-        name: role_id
-        required: true
-        type: integer
-      - description: Password
-        in: query
-        name: password
-        required: true
-        type: string
+        schema:
+          $ref: '#/definitions/handlers.registerNewUserRequest'
       produces:
       - application/json
       responses:

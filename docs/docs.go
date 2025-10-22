@@ -39,14 +39,14 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Email",
+                        "description": "email",
                         "name": "email",
                         "in": "query",
                         "required": true
                     },
                     {
                         "type": "string",
-                        "description": "Password",
+                        "description": "password",
                         "name": "password",
                         "in": "query",
                         "required": true
@@ -192,39 +192,13 @@ const docTemplate = `{
                 "summary": "Создание пользователя. Регистрация",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "Name",
-                        "name": "name",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Surname",
-                        "name": "surname",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Email",
-                        "name": "email",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Role_id roles are: 1-Child, 2-Parent, 3-Content-manager, 4-Administrator",
-                        "name": "role_id",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "Password",
-                        "name": "password",
-                        "in": "query",
-                        "required": true
+                        "description": "user credentials",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handlers.registerNewUserRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -1407,6 +1381,26 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "handlers.registerNewUserRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "role_id": {
+                    "type": "integer"
+                },
+                "surname": {
+                    "type": "string"
+                }
+            }
+        },
         "handlers.userResponse": {
             "type": "object",
             "properties": {
