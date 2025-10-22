@@ -243,6 +243,8 @@ func (h *AuthHandlers) SignUp(c *gin.Context) {
 		return
 	}
 
+	user.UUID = id
+
 	// Получаем роль пользователя
 	role, err := h.rolesRepo.GetRoleByID(c, user.Role_id)
 	if err != nil {
@@ -252,7 +254,7 @@ func (h *AuthHandlers) SignUp(c *gin.Context) {
 	}
 
 	// Генерация JWT
-	token, err := h.generateJWTToken(c.Request.Context(), user.UUID.String(), user.Role_id)
+	token, err := h.generateJWTToken(c.Request.Context(), id.String(), user.Role_id)
 	if err != nil {
 		logger.Error("Failed to generate JWT", zap.Error(err))
 		c.JSON(http.StatusInternalServerError, models.NewApiError("failed to generate token"))
@@ -263,14 +265,12 @@ func (h *AuthHandlers) SignUp(c *gin.Context) {
 
 	// Отдаем ответ
 	c.JSON(http.StatusOK, gin.H{
-		"uuid":  id,
 		"token": token,
 		"user":  user,
 		"role":  role.Name,
 	})
 
 }
-
 
 // Refresh godoc
 // @Summary Обновление токена
@@ -315,7 +315,7 @@ func (h *AuthHandlers) Refresh(c *gin.Context) {
 	newRefreshToken, err := utils.GenerateRefreshToken(session.UserUUID.String())
 	if err != nil {
 		logger.Error("Failed to generate refresh token",
-			zap.String("user_uuid",session.UserUUID.String()),
+			zap.String("user_uuid", session.UserUUID.String()),
 			zap.Error(err))
 		c.JSON(http.StatusInternalServerError, models.NewApiError("failed to generate refresh token"))
 		return
@@ -326,7 +326,7 @@ func (h *AuthHandlers) Refresh(c *gin.Context) {
 
 	if err := h.sessionsRepo.UpdateSession(c.Request.Context(), session); err != nil {
 		logger.Error("Failed to update session",
-			zap.String("user_uuid",session.UserUUID.String()),
+			zap.String("user_uuid", session.UserUUID.String()),
 			zap.Error(err))
 		c.JSON(http.StatusInternalServerError, models.NewApiError("failed to update session"))
 		return
