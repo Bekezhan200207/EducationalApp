@@ -52,7 +52,7 @@ func main() {
 	)
 
 	corsConfig := cors.Config{
-		AllowOrigins:     []string{"ilessons.cloud/go/api"},
+		AllowOrigins:     []string{"https://ilessons.cloud/go/api"},
 		AllowHeaders:     []string{"Content-Type, Authorization"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowCredentials: true,
